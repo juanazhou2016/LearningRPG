@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>战斗流程测试</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #1a1a2e; color: white; }
+    .question-box { background: #16213e; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+    .choices { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .choice-btn {
+      padding: 15px; font-size: 18px; background: #1f2a4a; border: 2px solid #3a4a6a;
+      color: white; border-radius: 8px; cursor: pointer;
+    }
+    .choice-btn:hover { background: #2a3a5c; }
+    .choice-btn.correct { background: rgba(82,196,26,0.3); border-color: #52c41a; }
+    .choice-btn.wrong { background: rgba(255,77,79,0.3); border-color: #ff4d4f; }
+    .log { margin-top: 30px; background: #0d1526; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto; }
+    .log div { margin: 4px 0; }
+    .log .info { color: #4a90e2; }
+    .log .success { color: #52c41a; }
+    .log .error { color: #ff4d4f; }
+    .timer { font-size: 24px; font-weight: bold; color: #f5a623; margin-bottom: 15px; }
+    .result { font-size: 20px; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <h1>战斗流程测试</h1>
+
+  <div class="timer" id="timer">⏱️ 20s</div>
+
+  <div class="question-box">
+    <div class="result" id="question-text">题目加载中...</div>
+    <div class="choices" id="choices">
+      <button class="choice-btn" data-choice="0">A</button>
+      <button class="choice-btn" data-choice="1">B</button>
+      <button class="choice-btn" data-choice="2">C</button>
+      <button class="choice-btn" data-choice="3">D</button>
+    </div>
+  </div>
+
+  <div id="log" class="log"></div>
+
+  <script>
+    const log = document.getElementById('log');
+    function addLog(msg, type='info') {
+      const div = document.createElement('div');
+      div.className = type;
+      div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      log.appendChild(div);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    // 模拟题库
+    const questions = [
+      { id: 'q1', q: '"苹果" 英语是？', choices: ['apple', 'banana', 'orange', 'grape'], answer: 0 },
+      { id: 'q2', q: '"香蕉" 英语是？', choices: ['apple', 'banana', 'orange', 'grape'], answer: 1 },
+      { id: 'q3', q: '"橙子" 英语是？', choices: ['apple', 'banana', 'orange', 'grape'], answer: 2 },
+      { id: 'q4', q: '"葡萄" 英语是？', choices: ['apple', 'banana', 'orange', 'grape'], answer: 3 },
+      { id: 'q5', q: '"牛奶" 英语是？', choices: ['milk', 'water', 'juice', 'tea'], answer: 0 },
+    ];
+
+    // 模拟战斗状态
+    let state = {
+      currentIndex: 0,
+      correctCount: 0,
+      monsterHp: 30,
+      maxMonsterHp: 30,
+      questions: questions.slice(0, 5)
+    };
+
+    let timer = null;
+    let timeLeft = 20;
+    let isProcessing = false;
+
+    function updateQuestion() {
+      const q = state.questions[state.currentIndex];
+      document.getElementById('question-text').textContent = q.q;
+      const btns = document.querySelectorAll('.choice-btn');
+      btns.forEach((btn, i) => {
+        btn.textContent = q.choices[i];
+        btn.className = 'choice-btn';
+        btn.disabled = false;
+      });
+      addLog(`显示题目 ${state.currentIndex + 1}: ${q.q}`);
+    }
+
+    function startTimer() {
+      clearInterval(timer);
+      timeLeft = 20;
+      document.getElementById('timer').textContent = `⏱️ ${timeLeft}s`;
+      timer = setInterval(() => {
+        if (isProcessing) return;
+        timeLeft--;
+        const timerEl = document.getElementById('timer');
+        timerEl.textContent = `⏱️ ${timeLeft}s`;
+        timerEl.style.color = timeLeft <= 5 ? '#ff4d4f' : timeLeft <= 10 ? '#f5a623' : '#f5a623';
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          addLog('时间到！视为答错', 'error');
+          handleAnswer(-1);
+        }
+      }, 1000);
+    }
+
+    function stopTimer() {
+      clearInterval(timer);
+    }
+
+    async function handleAnswer(choiceIndex) {
+      if (isProcessing) {
+        addLog('正在处理中，忽略点击', 'error');
+        return;
+      }
+      isProcessing = true;
+      stopTimer();
+
+      const q = state.questions[state.currentIndex];
+      const isTimeout = choiceIndex === -1;
+      const correct = !isTimeout && choiceIndex === q.answer;
+
+      addLog(`选择: ${choiceIndex}, 正确答案: ${q.answer}, 正确: ${correct}`);
+
+      const btns = document.querySelectorAll('.choice-btn');
+      btns.forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === q.answer) btn.classList.add('correct');
+        if (!isTimeout && i === choiceIndex && !correct) btn.classList.add('wrong');
+      });
+
+      if (correct) {
+        state.correctCount++;
+        state.monsterHp = Math.max(0, state.monsterHp - (30 / state.questions.length));
+        addLog(`答对！怪物HP: ${state.monsterHp.toFixed(1)}`, 'success');
+      } else {
+        addLog('答错！', 'error');
+      }
+
+      await new Promise(r => setTimeout(r, 800));
+
+      state.currentIndex++;
+
+      if (state.currentIndex >= state.questions.length) {
+        addLog(`战斗结束！答对 ${state.correctCount}/${state.questions.length} 题`);
+        document.getElementById('question-text').textContent = `🎉 通关！答对 ${state.correctCount}/${state.questions.length}`;
+        document.getElementById('choices').style.display = 'none';
+      } else {
+        addLog(`进入下一题 (${state.currentIndex + 1}/${state.questions.length})`);
+        updateQuestion();
+        startTimer();
+      }
+
+      isProcessing = false;
+    }
+
+    // 绑定事件
+    document.getElementById('choices').onclick = function(e) {
+      const btn = e.target.closest('.choice-btn');
+      if (!btn || btn.disabled) return;
+      const choiceIndex = parseInt(btn.dataset.choice);
+      handleAnswer(choiceIndex);
+    };
+
+    // 启动
+    updateQuestion();
+    startTimer();
+    addLog('测试开始，点击选项验证流程', 'info');
+  </script>
+</body>
+</html>

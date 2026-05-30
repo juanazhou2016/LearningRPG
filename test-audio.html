@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>语音测试</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #1a1a2e; color: white; }
+    .test-box { background: #16213e; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+    input { padding: 12px; font-size: 16px; width: 300px; background: #1f2a4a; color: white; border: 2px solid #3a4a6a; border-radius: 8px; }
+    button { padding: 12px 24px; font-size: 16px; background: #4a90e2; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 5px; }
+    button:hover { background: #357abd; }
+    .log { margin-top: 20px; background: #0d1526; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto; white-space: pre-wrap; }
+    .success { color: #52c41a; }
+    .error { color: #ff4d4f; }
+    .info { color: #4a90e2; }
+  </style>
+</head>
+<body>
+  <h1>🔊 语音测试页面</h1>
+
+  <div class="test-box">
+    <h3>测试 Web Speech API</h3>
+    <input type="text" id="text-input" value="apple" placeholder="输入要朗读的英文">
+    <br><br>
+    <button onclick="testSpeak()">🔊 朗读</button>
+    <button onclick="testStop()">⏹️ 停止</button>
+    <button onclick="checkVoices()">🔍 检查语音列表</button>
+    <button onclick="speakAuto()">🔊 自动朗读 (apple)</button>
+  </div>
+
+  <div class="test-box">
+    <h3>快速测试词汇</h3>
+    <button onclick="speakWord('apple')">apple</button>
+    <button onclick="speakWord('banana')">banana</button>
+    <button onclick="speakWord('cat')">cat</button>
+    <button onclick="speakWord('sunny')">sunny</button>
+    <button onclick="speakWord('doctor')">doctor</button>
+    <button onclick="speakWord('Hello, my name is Tom')">Hello句子</button>
+  </div>
+
+  <div class="test-box">
+    <h3>尝试不同语音 (用Google US English)</h3>
+    <button onclick="speakWord('apple', 4)">apple [4] Google US English</button>
+    <button onclick="speakWord('apple', 5)">apple [5] UK Female</button>
+    <button onclick="speakWord('apple', 6)">apple [6] UK Male</button>
+    <button onclick="speakWord('hello', 3)">hello [3] Deutsch</button>
+  </div>
+
+  <div id="log" class="log">点击按钮开始测试...</div>
+
+  <script>
+    const logEl = document.getElementById('log');
+
+    function addLog(msg, type='info') {
+      const div = document.createElement('div');
+      div.className = type;
+      div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      logEl.appendChild(div);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function testStop() {
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+        addLog('已停止朗读', 'success');
+      } else {
+        addLog('speechSynthesis 不可用', 'error');
+      }
+    }
+
+    function checkVoices() {
+      if (!('speechSynthesis' in window)) {
+        addLog('speechSynthesis 不可用', 'error');
+        return;
+      }
+
+      const voices = speechSynthesis.getVoices();
+      addLog(` Voices数量: ${voices.length}`, 'info');
+
+      if (voices.length === 0) {
+        addLog('没有加载voices，可能需要等待onvoiceschanged事件', 'info');
+        speechSynthesis.onvoiceschanged = () => {
+          const v = speechSynthesis.getVoices();
+          addLog(` onvoiceschanged触发，Voices数量: ${v.length}`, 'success');
+          v.forEach((voice, i) => {
+            addLog(`  [${i}] ${voice.name} (${voice.lang})`, 'info');
+          });
+        };
+      } else {
+        voices.forEach((voice, i) => {
+          addLog(`  [${i}] ${voice.name} (${voice.lang})`, 'info');
+        });
+      }
+    }
+
+    function speakWord(word, voiceIndex = null) {
+      if (!('speechSynthesis' in window)) {
+        addLog('speechSynthesis 不可用', 'error');
+        return;
+      }
+
+      speechSynthesis.cancel();
+
+      const utter = new SpeechSynthesisUtterance(word);
+      utter.lang = 'en-US';
+      utter.rate = 0.75;
+      utter.pitch = 1;
+      utter.volume = 1;
+
+      utter.onstart = () => addLog('语音开始播放', 'success');
+      utter.onend = () => addLog('语音播放结束', 'success');
+      utter.onerror = (e) => addLog('语音错误: ' + e.error, 'error');
+
+      addLog(`朗读: "${word}"`);
+
+      const voices = speechSynthesis.getVoices();
+      let voice;
+      if (voiceIndex !== null) {
+        voice = voices[voiceIndex];
+        addLog(`使用指定语音 [${voiceIndex}]: ${voice?.name} (${voice?.lang})`, 'success');
+      } else {
+        // 优先用Google英文语音
+        voice = voices.find(vo => vo.lang === 'en-US' && vo.name.includes('Google')) ||
+               voices.find(vo => vo.lang.startsWith('en')) ||
+               voices[0];
+        addLog(`使用语音: ${voice?.name} (${voice?.lang})`, 'success');
+      }
+      if (voice) {
+        utter.voice = voice;
+      }
+
+      addLog('调用speechSynthesis.speak()...', 'info');
+      speechSynthesis.speak(utter);
+      addLog('speechSynthesis.speak()已调用', 'success');
+
+      setTimeout(() => {
+        addLog(`pending: ${speechSynthesis.pending}, speaking: ${speechSynthesis.speaking}`, 'info');
+      }, 200);
+    }
+
+    function testSpeak() {
+      const text = document.getElementById('text-input').value.trim();
+      if (text) {
+        speakWord(text);
+      } else {
+        addLog('请输入要朗读的文字', 'error');
+      }
+    }
+
+    function speakAuto() {
+      speakWord('apple');
+    }
+
+    // 初始化
+    addLog('页面加载完成', 'info');
+    addLog('点击"检查语音列表"按钮开始...', 'info');
+
+    // 预加载voices
+    speechSynthesis.getVoices();
+    speechSynthesis.onvoiceschanged = () => {
+      const v = speechSynthesis.getVoices();
+      if (v.length > 0) {
+        addLog(` Voices预加载完成: ${v.length}`, 'success');
+      }
+    };
+  </script>
+</body>
+</html>

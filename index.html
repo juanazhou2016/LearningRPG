@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="学习大陆冒险 - 3-6年级小学生英语学习RPG游戏">
+  <meta name="theme-color" content="#4a90e2">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="学习大陆">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
+  <title>学习大陆冒险 · 英语篇</title>
+  <link rel="stylesheet" href="/styles/app.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- 加载页面 -->
+    <div id="loading-screen" class="screen active">
+      <div class="loading-content">
+        <div class="logo-text">🌍 学习大陆</div>
+        <div class="loading-bar">
+          <div class="loading-progress" id="loading-progress"></div>
+        </div>
+        <div class="loading-tip" id="loading-tip">正在加载...</div>
+      </div>
+    </div>
+
+    <!-- 主菜单 -->
+    <div id="main-menu" class="screen">
+      <div id="main-menu-content"></div>
+    </div>
+
+    <!-- 创建角色 -->
+    <div id="create-screen" class="screen">
+      <div id="create-content" class="create-container"></div>
+    </div>
+
+    <!-- 关卡地图 -->
+    <div id="map-screen" class="screen">
+      <div id="map-content"></div>
+    </div>
+
+    <!-- 战斗界面 -->
+    <div id="battle-screen" class="screen">
+      <div id="battle-content"></div>
+    </div>
+
+    <!-- 战斗结果 -->
+    <div id="battle-result" class="screen">
+      <div id="battle-result-content"></div>
+    </div>
+
+    <!-- 练习模式 -->
+    <div id="practice-screen" class="screen">
+      <div id="practice-content"></div>
+    </div>
+
+    <!-- 错题本 -->
+    <div id="wrongbook-screen" class="screen">
+      <div id="wrongbook-content"></div>
+    </div>
+
+    <!-- 成就 -->
+    <div id="achievements-screen" class="screen">
+      <div id="achievements-content"></div>
+    </div>
+
+    <!-- 家长报告 -->
+    <div id="parent-report-screen" class="screen">
+      <div id="parent-report-content"></div>
+    </div>
+
+    <!-- 测评 -->
+    <div id="assessment-screen" class="screen">
+      <div id="assessment-content"></div>
+    </div>
+
+    <!-- 设置 -->
+    <div id="settings-screen" class="screen">
+      <div id="settings-content"></div>
+    </div>
+
+    <!-- 通用弹窗 -->
+    <div id="modal-overlay" class="modal-overlay">
+      <div id="modal-content"></div>
+    </div>
+
+  </div>
+
+  <script src="/scripts/app.js" type="module"></script>
+</body>
+</html>
