@@ -260,9 +260,17 @@ let isProcessingAnswer = false;
 
 function startQuestionTimer() {
   clearInterval(battleTimer);
+  battleTimer = null;
   battleTimeLeft = battleState.level.timePerQuestion || 20;
 
   battleTimer = setInterval(() => {
+    // 安全检查
+    if (!battleState) {
+      clearInterval(battleTimer);
+      battleTimer = null;
+      return;
+    }
+
     // 如果正在处理答题，不触发超时
     if (isProcessingAnswer) return;
 
@@ -286,6 +294,7 @@ function startQuestionTimer() {
 
 function stopQuestionTimer() {
   clearInterval(battleTimer);
+  battleTimer = null;
 }
 
 // 战斗界面事件
@@ -314,6 +323,15 @@ function initBattleHandlers() {
       const wordToSpeak = q.audio || q.choices[q.answer];
       console.log('播放:', wordToSpeak);
       console.log('speechSynthesis可用:', 'speechSynthesis' in window);
+      speakWord(wordToSpeak);
+      return;
+    }
+
+    // 音频提示按钮 [audio:xxx]
+    const audioHintBtn = e.target.closest('.audio-hint-btn');
+    if (audioHintBtn) {
+      const wordToSpeak = audioHintBtn.dataset.audio;
+      console.log('播放音频提示:', wordToSpeak);
       speakWord(wordToSpeak);
       return;
     }
@@ -565,6 +583,9 @@ function initBattleResultHandlers() {
         break;
       case 'back-to-map':
         showMapScreen(state);
+        break;
+      case 'back-to-menu':
+        showMainMenu(state);
         break;
     }
   });

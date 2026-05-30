@@ -151,6 +151,17 @@ export function renderMap(state, levels) {
   container.innerHTML = html;
 }
 
+// 替换 [audio:xxx] 为播放按钮
+function replaceAudioHint(text, audioWord) {
+  return text.replace(/\[audio:(\w+)\]/g, (match, word) => {
+    return `<button class="btn listen-btn audio-hint-btn" data-audio="${word}">🔊 听发音</button>`;
+  });
+}
+
+function renderAudioButton(word) {
+  return `<button class="btn listen-btn audio-hint-btn" data-audio="${word}">🔊 听发音</button>`;
+}
+
 // 显示战斗界面
 export function renderBattle(state, battleData) {
   const { level, question, questionIndex, totalQuestions, petHp, maxPetHp, monsterHp, maxMonsterHp, timeLeft } = battleData;
@@ -167,10 +178,18 @@ export function renderBattle(state, battleData) {
   const container = document.getElementById('battle-content');
   if (!container) return;
 
+  // 处理题目中的 [audio:xxx] 提示
+  const questionText = question.q.replace(/\[audio:(\w+)\]/g, (match, word) => {
+    return `<button class="btn listen-btn audio-hint-btn" data-audio="${word}">🔊 听发音</button>`;
+  });
+
   // 根据题型渲染不同UI
   let questionUI = '';
   if (question.type === 'choice') {
+    // 检查题目文本是否包含音频提示
+    const hasAudioHint = question.q.includes('[audio:');
     questionUI = `
+      ${hasAudioHint ? `<div class="listen-area" style="margin-bottom:16px;"></div>` : ''}
       <div class="choices-grid" id="choices-grid">
         ${question.choices.map((choice, i) => `
           <button class="choice-btn" data-choice="${i}">${choice}</button>
@@ -256,7 +275,7 @@ export function renderBattle(state, battleData) {
     </div>
 
     <div class="question-area">
-      <div class="question-text">${question.q}</div>
+      <div class="question-text">${questionText}</div>
       ${questionUI}
     </div>
 
@@ -291,6 +310,7 @@ export function renderBattleResult(result) {
     <div class="result-buttons">
       <button class="btn" data-action="retry-battle">再挑战一次</button>
       <button class="btn btn-secondary" data-action="back-to-map">返回地图</button>
+      <button class="btn btn-secondary" data-action="back-to-menu">返回主菜单</button>
     </div>
   `;
 }

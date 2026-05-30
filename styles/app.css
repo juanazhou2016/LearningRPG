@@ -637,6 +637,12 @@ body {
   padding: 16px 32px;
 }
 
+.audio-hint-btn {
+  font-size: 14px;
+  padding: 8px 16px;
+  margin: 0 4px;
+}
+
 /* 阅读理解题目文本 */
 .question-text {
   font-size: 22px;
