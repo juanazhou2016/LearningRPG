@@ -4,7 +4,7 @@
  */
 
 import { loadState, saveState, resetState } from './modules/state.js';
-import { showScreen, setLoadingProgress, onScreenReady, renderMainMenu, renderMap, renderBattle, renderBattleResult, renderCreateScreen, renderWrongbook, renderAchievements, renderParentReport } from './modules/renderer.js';
+import { showScreen, setLoadingProgress, onScreenReady, renderMainMenu, renderMap, renderBattle, renderBattleResult, renderCreateScreen, renderWrongbook, renderAchievements, renderParentReport, initWrongbookHandlers, initAchievementsHandlers, initParentReportHandlers } from './modules/renderer.js';
 import { levels, getLevelById, getNextLevel } from './data/levels.js';
 import { questions, getQuestionsForLevel, getRandomQuestions, getQuestionById } from './data/questions.js';
 import { syncMemoryCache } from './modules/storage.js';
@@ -186,8 +186,8 @@ function initMapScreenHandlers(state) {
       return;
     }
 
-    // 测评关卡
-    if (levelId >= 9) {
+    // 测评关卡（id 17-19）
+    if (levelId >= 17) {
       startAssessment(levelId);
       return;
     }
@@ -209,9 +209,11 @@ async function startBattle(levelId) {
 
   // 获取题目
   let pool = getQuestionsForLevel(level);
-  // 如果题库题目不够用，减少本关题目数量，最多取pool全部题目
+  // 如果题库题目不够用，使用全部题目
+  if (pool.length === 0) {
+    pool = [...questions];
+  }
   const actualCount = Math.min(level.questionsPerBattle, pool.length);
-  if (pool.length === 0) pool = questions.slice(0, actualCount);
 
   const shuffled = [...pool].sort(() => Math.random() - 0.5);
   const battleQuestions = shuffled.slice(0, actualCount);
@@ -365,6 +367,7 @@ function initBattleHandlers() {
   // 单独处理输入框回车确认
   const fillInput = document.getElementById('fill-input');
   if (fillInput) {
+    fillInput.focus(); // 自动聚焦
     fillInput.onkeydown = function(e) {
       if (e.key === 'Enter' && !isProcessingAnswer) {
         handleAnswer(null, fillInput.value);
@@ -387,12 +390,15 @@ function initBattleHandlers() {
 // 处理答题（choiceIndex=-1表示超时，textAnswer用于填空/拼写等）
 async function handleAnswer(choiceIndex, textAnswer = null) {
   if (!battleState) return;
+  const { questions, currentIndex, level, petHp, maxPetHp, monsterHp, maxMonsterHp } = battleState;
+  if (currentIndex < 0 || currentIndex >= questions.length) return;
+
+  const question = questions[currentIndex];
+  if (!question) return;
 
   isProcessingAnswer = true;
   stopQuestionTimer();
 
-  const { questions, currentIndex, level, petHp, maxPetHp, monsterHp, maxMonsterHp } = battleState;
-  const question = questions[currentIndex];
   const isTimeout = choiceIndex === -1;
 
   // 判断是否正确

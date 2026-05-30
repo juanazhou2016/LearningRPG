@@ -179,8 +179,10 @@ export function renderBattle(state, battleData) {
   if (!container) return;
 
   // 处理题目中的 [audio:xxx] 提示
+  if (!question || !question.q) return;
+
   const questionText = question.q.replace(/\[audio:(\w+)\]/g, (match, word) => {
-    return `<button class="btn listen-btn audio-hint-btn" data-audio="${word}">🔊 听发音</button>`;
+    return `<button class="btn listen-btn audio-hint-btn" data-audio="${word}">[audio]</button>`;
   });
 
   // 根据题型渲染不同UI

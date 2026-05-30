@@ -18,19 +18,19 @@ export function startAssessment(assessmentId) {
   // 获取本测评范围的题目
   let pool = [];
 
-  if (assessmentId === 9) {
-    // 知识评估1：基于1-3关的题目
+  if (assessmentId === 17) {
+    // 知识评估1：基于1-3关+9-10关的题目
     pool = questions.filter(q =>
-      ['food', 'animals', 'family', 'home', 'school', 'colors'].includes(q.topic) &&
+      ['food', 'animals', 'family', 'home', 'school', 'colors', 'farmanimals', 'teaparty', 'billygoats'].includes(q.topic) &&
       q.grades.includes(3)
     );
-  } else if (assessmentId === 10) {
-    // 知识评估2：基于4-6关的题目
+  } else if (assessmentId === 18) {
+    // 知识评估2：基于4-6关+11-13关的题目
     pool = questions.filter(q =>
-      ['weather', 'numbers', 'body', 'jobs', 'science'].includes(q.topic) &&
-      q.grades.includes(4)
+      ['weather', 'numbers', 'body', 'jobs', 'science', 'shapes', 'dinosaurs', 'polaranimals'].includes(q.topic) &&
+      (q.grades.includes(4) || q.grades.includes(5))
     );
-  } else if (assessmentId === 11) {
+  } else if (assessmentId === 19) {
     // 知识评估3：全部范围
     pool = questions.filter(q => q.grades.includes(5) || q.grades.includes(6));
   }
@@ -49,12 +49,53 @@ export function startAssessment(assessmentId) {
     questions: assessmentQuestions,
     currentIndex: 0,
     correctCount: 0,
-    questionResults: []
+    questionResults: [],
+    timer: null,
+    timeLeft: level.timePerQuestion || 20
   };
 
   showScreen('assessment-screen');
   renderAssessmentQuestion(assessmentQuestions[0], 0, assessmentQuestions.length);
   initAssessmentHandlers();
+  startAssessmentTimer();
+}
+
+let assessmentTimer = null;
+let assessmentTimeLeft = 0;
+
+function startAssessmentTimer() {
+  clearInterval(assessmentTimer);
+  assessmentTimer = null;
+  assessmentTimeLeft = assessmentState.level.timePerQuestion || 20;
+
+  assessmentTimer = setInterval(() => {
+    if (!assessmentState) {
+      clearInterval(assessmentTimer);
+      assessmentTimer = null;
+      return;
+    }
+
+    assessmentTimeLeft--;
+
+    const timerEl = document.getElementById('assessment-timer');
+    if (timerEl) {
+      timerEl.textContent = `⏱️ ${assessmentTimeLeft}s`;
+      timerEl.className = 'timer-display';
+      if (assessmentTimeLeft <= 5) timerEl.classList.add('timer-danger');
+      else if (assessmentTimeLeft <= 10) timerEl.classList.add('timer-warning');
+    }
+
+    if (assessmentTimeLeft <= 0) {
+      clearInterval(assessmentTimer);
+      assessmentTimer = null;
+      handleAssessmentAnswer(-1); // -1 表示超时
+    }
+  }, 1000);
+}
+
+function stopAssessmentTimer() {
+  clearInterval(assessmentTimer);
+  assessmentTimer = null;
 }
 
 function renderAssessmentQuestion(question, index, total) {
@@ -88,8 +129,9 @@ function renderAssessmentQuestion(question, index, total) {
 
   container.innerHTML = `
     <div class="assessment-header">
-      <button class="btn-back btn-sm" id="assessment-back">← 退出</button>
+      <button class="btn-back btn-sm" id="assessment-back">← 返回</button>
       <div class="assessment-title">📋 ${assessmentState.level.name}</div>
+      <div class="assessment-timer" id="assessment-timer">⏱️ ${assessmentTimeLeft}s</div>
       <div class="assessment-progress">${index + 1} / ${total}</div>
     </div>
     <div class="progress-indicator">
@@ -104,6 +146,14 @@ function renderAssessmentQuestion(question, index, total) {
       ${questionUI}
     </div>
   `;
+
+  // 听力题显示播放按钮
+  if (question.type === 'listen' && question.choices) {
+    const timerEl = document.getElementById('assessment-timer');
+    if (timerEl) {
+      timerEl.insertAdjacentHTML('beforebegin', `<button class="btn btn-sm" id="listen-play">🔊 播放</button> `);
+    }
+  }
 }
 
 function initAssessmentHandlers() {
@@ -112,9 +162,18 @@ function initAssessmentHandlers() {
 
   container.onclick = function(e) {
     if (e.target.closest('#assessment-back')) {
-      if (confirm('确定要退出测评吗？退出后本次测评成绩不保存。')) {
-        assessmentState = null;
-        showScreen('map-screen');
+      stopAssessmentTimer();
+      assessmentState = null;
+      showScreen('map-screen');
+      return;
+    }
+
+    // 听力播放按钮
+    const listenPlayBtn = e.target.closest('#listen-play');
+    if (listenPlayBtn) {
+      const q = assessmentState.questions[assessmentState.currentIndex];
+      if (q.choices && q.choices[q.answer]) {
+        speakWord(q.choices[q.answer]);
       }
       return;
     }
@@ -157,15 +216,19 @@ async function handleAssessmentAnswer(choiceIndex, textAnswer = null) {
   if (!assessmentState || isProcessingAssessment) return;
   isProcessingAssessment = true;
 
+  stopAssessmentTimer();
+
   const { questions, currentIndex, level } = assessmentState;
   const question = questions[currentIndex];
+
+  const isTimeout = choiceIndex === -1;
 
   let correct = false;
   if (textAnswer !== null) {
     const userAns = textAnswer.toLowerCase().trim().replace(/\s+/g, ' ');
     const correctAns = question.answer.toLowerCase().trim().replace(/\s+/g, ' ');
     correct = userAns === correctAns;
-  } else {
+  } else if (!isTimeout) {
     correct = choiceIndex === question.answer;
   }
 
@@ -174,7 +237,7 @@ async function handleAssessmentAnswer(choiceIndex, textAnswer = null) {
     choiceBtns.forEach((btn, i) => {
       btn.disabled = true;
       if (i === question.answer) btn.classList.add('correct');
-      if (i === choiceIndex && !correct) btn.classList.add('wrong');
+      if (!isTimeout && i === choiceIndex && !correct) btn.classList.add('wrong');
     });
   } else if (textAnswer !== null) {
     const inputEl = document.getElementById('assessment-input');
@@ -193,6 +256,7 @@ async function handleAssessmentAnswer(choiceIndex, textAnswer = null) {
   if (assessmentState.currentIndex >= questions.length) {
     showAssessmentResult();
   } else {
+    startAssessmentTimer();
     renderAssessmentQuestion(
       questions[assessmentState.currentIndex],
       assessmentState.currentIndex,
@@ -266,13 +330,13 @@ function showAssessmentResult() {
 }
 
 export function isAssessmentUnlocked(assessmentId, state) {
-  // 知识评估1需要通关第3关，知识评估2需要通关第6关，知识评估3需要通关第8关
-  if (assessmentId === 9) {
-    return state.progress.levelStars[3] !== undefined;
-  } else if (assessmentId === 10) {
-    return state.progress.levelStars[6] !== undefined;
-  } else if (assessmentId === 11) {
+  // 知识评估1需要通关第8关，知识评估2需要通关第12关，知识评估3需要通关第16关
+  if (assessmentId === 17) {
     return state.progress.levelStars[8] !== undefined;
+  } else if (assessmentId === 18) {
+    return state.progress.levelStars[12] !== undefined;
+  } else if (assessmentId === 19) {
+    return state.progress.levelStars[16] !== undefined;
   }
   return false;
 }

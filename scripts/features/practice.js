@@ -7,6 +7,7 @@ import { levels, getLevelById } from '../data/levels.js';
 import { questions, getQuestionsByGrade, getQuestionsByTopic, getRandomQuestions } from '../data/questions.js';
 import { showScreen } from '../modules/renderer.js';
 import { speakWord } from '../modules/audio.js';
+import { addWrong, markAsMastered } from '../modules/wrongbook.js';
 
 let practiceState = null;
 let isProcessingPractice = false;
@@ -81,7 +82,7 @@ function initPracticeSelectHandlers() {
 }
 
 export function startPractice(options = {}) {
-  const { grade, topic, type, count = 10 } = options;
+  const { grade, topic, type, count = 15 } = options;
 
   // 获取符合条件的题目
   let pool = questions;
@@ -206,6 +207,7 @@ function initPracticeHandlers() {
   // 输入框回车
   const inputEl = document.getElementById('practice-input');
   if (inputEl) {
+    inputEl.focus(); // 自动聚焦
     inputEl.onkeydown = function(e) {
       if (e.key === 'Enter' && !isProcessingPractice) {
         handlePracticeAnswer(null, inputEl.value);
@@ -250,7 +252,14 @@ async function handlePracticeAnswer(choiceIndex, textAnswer = null) {
   }
 
   practiceState.questionResults.push(correct ? 'correct' : 'wrong');
-  if (correct) practiceState.correctCount++;
+  if (correct) {
+    practiceState.correctCount++;
+    // 如果在错题本中，标记为已掌握（连续答对5次移除）
+    markAsMastered(question.id);
+  } else {
+    // 记录错题
+    addWrong(question);
+  }
 
   await sleep(800);
 

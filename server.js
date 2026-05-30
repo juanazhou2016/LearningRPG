@@ -7,7 +7,7 @@ const ROOT = __dirname;
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
-  '.js': 'application/javascript',
+  '.js': 'text/javascript',
   '.css': 'text/css',
   '.json': 'application/json',
   '.png': 'image/png',

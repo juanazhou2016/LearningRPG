@@ -55,7 +55,7 @@ export function getWrongbook() {
   });
 }
 
-// 标记为已掌握（连续答对3次）
+// 标记为已掌握（连续答对5次）
 export function markAsMastered(questionId) {
   const state = loadState();
   const entry = state.wrongbook.find(w => w.questionId === questionId);
@@ -64,8 +64,8 @@ export function markAsMastered(questionId) {
     entry.consecutiveCorrect++;
     entry.lastCorrectDate = today();
 
-    if (entry.consecutiveCorrect >= 3) {
-      // 连续答对3次，移出错题本
+    if (entry.consecutiveCorrect >= 5) {
+      // 连续答对5次，移出错题本
       state.wrongbook = state.wrongbook.filter(w => w.questionId !== questionId);
     } else {
       // 更新下次复习日期
