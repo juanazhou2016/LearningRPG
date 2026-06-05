@@ -1,0 +1,46 @@
+{
+  "source": {
+    "basis": "用户保存的知乎页面图片、body.txt 图片归属表、OCR 摘要和人工清洗",
+    "copyrightNote": "用于题库扩充和分级校验，不是官方完整词表，也不应逐字复刻教材页面",
+    "ocrConfidenceNote": "OCR 平均置信度约 49%，新增题目仍需人工复核"
+  },
+  "grades": {
+    "3": {
+      "sourceBooks": ["3A", "3B"],
+      "themes": ["问候与自我介绍", "姓名和年龄", "家庭成员", "朋友", "学校地点", "购物", "公园", "昆虫", "农场动物", "植物", "五官五感", "基础交通", "食物", "简单故事"],
+      "vocabularyDirections": ["I/you/he/she", "one-ten", "family members", "friend", "school/library/playground/classroom", "apple/orange/banana/peach", "bee/butterfly/ant", "chick/hen/duck/pig/dog/cat", "plant", "see/hear/touch/feel/taste/smell"],
+      "grammarFocus": ["基础代词", "be 动词", "have 基础表达", "my/your 物主形容词", "祈使句", "Yes/No question", "Wh-question", "can 表能力", "一般现在时基础"],
+      "sentencePatterns": ["How are you?", "What is your name?", "How old are you?", "Who is he/she?", "Can I have ...?", "What can you see/hear?", "How does it feel?", "It is hard/soft."],
+      "questionBankUses": ["词义选择", "图片词汇", "基础拼写", "听音辨词", "be 动词填空", "can 问答"],
+      "redFlags": ["完成时", "被动语态", "复杂宾语从句", "长篇阅读", "一般过去时密集操练"]
+    },
+    "4": {
+      "sourceBooks": ["4A", "4B"],
+      "themes": ["能力表达", "情绪状态", "水果", "味觉", "触感和材质", "太阳与影子", "运动", "宠物和可爱动物", "家庭生活", "声音", "时间", "星期", "音乐", "中国节日"],
+      "vocabularyDirections": ["run/swim/fly/climb/hop/paint", "happy/hungry/thirsty/tired", "watermelon/grape/plum/cherry/strawberry", "hard/soft/rough/smooth/sharp/blunt/thick/thin", "bedroom/living room/bathroom/kitchen", "o'clock/quarter past/half past", "always/usually/often/sometimes/never"],
+      "grammarFocus": ["can 与第三人称", "be + 情绪状态", "alternative questions", "whose 与名词所有格", "方位介词", "一般现在时和频率副词", "现在进行时入门", "there be"],
+      "sentencePatterns": ["Can he/she swim?", "How do you feel?", "What do you have?", "Is it a peach or an apple?", "How does it taste/feel?", "Whose ... is this/that?", "What time is it?", "Would you like to ...?"],
+      "questionBankUses": ["情境问答", "触感/味觉描述", "时间表达", "频率副词", "whose 所有格", "can 能力判断"],
+      "redFlags": ["较长故事阅读", "不规则过去式密集", "完成时", "被动语态"]
+    },
+    "5": {
+      "sourceBooks": ["5A", "5B"],
+      "themes": ["生日", "月份和日期", "职业", "梦想和人物能力", "学校用品", "物品归属", "生命成长", "声音和噪音", "食物饮品", "电影", "学校科目", "标识和规则", "公共安全", "简单科学现象"],
+      "vocabularyDirections": ["January-December", "first/second/third", "worker/pilot/farmer/cook/shop assistant/doctor/teacher", "notebook/paints/crayon/brush/tape/glue/school bag", "mine/yours/his/hers/ours/theirs", "sign/must/mustn't/should/can't", "magnet/nail/stone/hard/smooth"],
+      "grammarFocus": ["日期和序数词", "When questions", "第三人称单数", "want to be", "be good at", "物主代词", "一般过去时", "shall 表建议", "must/should/can 表规则", "较长语篇阅读"],
+      "sentencePatterns": ["When is your birthday?", "What time does the party begin?", "What does he/she do?", "He/She wants to be ...", "He/She is good at ...", "Whose ... is this?", "It is mine/hers/theirs.", "What should I do?", "What does this sign mean?"],
+      "questionBankUses": ["日期排序", "职业匹配", "物主代词", "规则标识", "一般过去时", "较短阅读判断"],
+      "redFlags": ["现在完成时", "被动语态", "抽象复合句"]
+    },
+    "6": {
+      "sourceBooks": [],
+      "sourceLimitation": "当前页面图片未提供 6A/6B 证据，暂沿用项目原上海口径",
+      "themes": ["太空", "力与运动", "环境", "抽象性格", "综合阅读"],
+      "vocabularyDirections": ["science and environment vocabulary", "abstract traits", "integrated reading vocabulary"],
+      "grammarFocus": ["现在完成时入门", "被动语态基础", "基础复合句", "因果/条件表达", "更长阅读的信息提取和推断"],
+      "sentencePatterns": ["experience and result expressions", "basic passive descriptions", "cause-and-effect expressions"],
+      "questionBankUses": ["完成时", "被动语态", "较长阅读", "跨句推断", "综合翻译"],
+      "redFlags": ["超出初中起始段的复杂从句", "虚拟语气", "高级写作题"]
+    }
+  }
+}

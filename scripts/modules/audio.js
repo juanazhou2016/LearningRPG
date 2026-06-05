@@ -16,7 +16,6 @@ function initVoices() {
   speechSynthesis.onvoiceschanged = () => {
     cachedVoices = speechSynthesis.getVoices();
     voicesLoaded = true;
-    console.log('[audio] Voices loaded:', cachedVoices.length);
   };
 }
 
@@ -38,13 +37,11 @@ export function speakWord(word) {
 
   const trySpeak = () => {
     const voices = speechSynthesis.getVoices();
-    console.log('[audio] Voices available:', voices.length);
     const enVoice = voices.find(v => v.lang.startsWith('en')) ||
                     voices.find(v => v.lang === 'en-US') ||
                     voices[0];
     if (enVoice) {
       utter.voice = enVoice;
-      console.log('[audio] Using voice:', enVoice.name, enVoice.lang);
     }
     speechSynthesis.speak(utter);
   };

@@ -163,7 +163,7 @@ export function renderParentReport() {
 
   container.innerHTML = `
     <div class="report-header">
-      <button class="btn-back btn-sm" id="report-back">← 返回</button>
+      <button class="btn-back btn-sm" id="report-back" data-action="back-to-menu">← 返回</button>
       <div class="report-title">👨‍👩‍👧 家长报告</div>
     </div>
 

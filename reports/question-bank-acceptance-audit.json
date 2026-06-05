@@ -1,0 +1,526 @@
+{
+  "generatedAt": "2026-06-05T05:22:01.983Z",
+  "summary": {
+    "totalQuestions": 913,
+    "errorCount": 0,
+    "warningCount": 0,
+    "topicCount": 63,
+    "typeCounts": {
+      "choice": 578,
+      "fill": 226,
+      "spell": 20,
+      "grammar": 2,
+      "translate": 79,
+      "reading": 4,
+      "listen": 4
+    },
+    "gradeCounts": {
+      "3": 307,
+      "4": 317,
+      "5": 197,
+      "6": 92
+    }
+  },
+  "issues": [],
+  "levelCoverage": {
+    "normalLevels": [
+      {
+        "id": 1,
+        "name": "单词森林",
+        "topics": [
+          "food",
+          "animals"
+        ],
+        "questionsPerBattle": 10,
+        "availableQuestions": 54,
+        "typeCounts": {
+          "choice": 30,
+          "fill": 15,
+          "spell": 3,
+          "grammar": 1,
+          "listen": 2,
+          "translate": 3
+        },
+        "gradeCounts": {
+          "3": 49,
+          "4": 5
+        }
+      },
+      {
+        "id": 2,
+        "name": "家庭小屋",
+        "topics": [
+          "family",
+          "home"
+        ],
+        "questionsPerBattle": 10,
+        "availableQuestions": 29,
+        "typeCounts": {
+          "choice": 15,
+          "fill": 12,
+          "spell": 1,
+          "grammar": 1
+        },
+        "gradeCounts": {
+          "3": 28,
+          "4": 1
+        }
+      },
+      {
+        "id": 3,
+        "name": "学校城堡",
+        "topics": [
+          "school",
+          "colors"
+        ],
+        "questionsPerBattle": 10,
+        "availableQuestions": 20,
+        "typeCounts": {
+          "choice": 15,
+          "fill": 3,
+          "spell": 2
+        },
+        "gradeCounts": {
+          "3": 20
+        }
+      },
+      {
+        "id": 4,
+        "name": "天气山谷",
+        "topics": [
+          "weather",
+          "numbers"
+        ],
+        "questionsPerBattle": 10,
+        "availableQuestions": 32,
+        "typeCounts": {
+          "choice": 23,
+          "fill": 7,
+          "listen": 1,
+          "translate": 1
+        },
+        "gradeCounts": {
+          "3": 5,
+          "4": 27
+        }
+      },
+      {
+        "id": 5,
+        "name": "工作城镇",
+        "topics": [
+          "jobs",
+          "body"
+        ],
+        "questionsPerBattle": 10,
+        "availableQuestions": 20,
+        "typeCounts": {
+          "choice": 13,
+          "fill": 4,
+          "listen": 1,
+          "spell": 2
+        },
+        "gradeCounts": {
+          "4": 13,
+          "5": 7
+        }
+      },
+      {
+        "id": 6,
+        "name": "科学山洞",
+        "topics": [
+          "science",
+          "colors"
+        ],
+        "questionsPerBattle": 12,
+        "availableQuestions": 26,
+        "typeCounts": {
+          "choice": 14,
+          "fill": 8,
+          "spell": 4
+        },
+        "gradeCounts": {
+          "3": 10,
+          "5": 16
+        }
+      },
+      {
+        "id": 7,
+        "name": "地球要塞",
+        "topics": [
+          "science",
+          "earth"
+        ],
+        "questionsPerBattle": 12,
+        "availableQuestions": 24,
+        "typeCounts": {
+          "choice": 11,
+          "fill": 8,
+          "spell": 5
+        },
+        "gradeCounts": {
+          "5": 24
+        }
+      },
+      {
+        "id": 8,
+        "name": "王座大厅",
+        "topics": "mixed",
+        "questionsPerBattle": 15,
+        "availableQuestions": 307,
+        "typeCounts": {
+          "choice": 213,
+          "fill": 86,
+          "spell": 6,
+          "listen": 2
+        },
+        "gradeCounts": {
+          "3": 307
+        }
+      },
+      {
+        "id": 9,
+        "name": "自然乐园",
+        "topics": [
+          "farmanimals",
+          "jungle",
+          "desertanimals"
+        ],
+        "questionsPerBattle": 12,
+        "availableQuestions": 40,
+        "typeCounts": {
+          "fill": 9,
+          "choice": 25,
+          "translate": 6
+        },
+        "gradeCounts": {
+          "4": 33,
+          "5": 7
+        }
+      },
+      {
+        "id": 10,
+        "name": "故事王国",
+        "topics": [
+          "cinderella",
+          "snowwhite",
+          "goldilocks",
+          "jackbeanstalk",
+          "littlepigs",
+          "billygoats",
+          "sleepingbeauty"
+        ],
+        "questionsPerBattle": 12,
+        "availableQuestions": 104,
+        "typeCounts": {
+          "translate": 11,
+          "choice": 74,
+          "fill": 19
+        },
+        "gradeCounts": {
+          "3": 53,
+          "4": 25,
+          "5": 11,
+          "6": 15
+        }
+      },
+      {
+        "id": 11,
+        "name": "超级英雄",
+        "topics": [
+          "superhero",
+          "police",
+          "firebrigade"
+        ],
+        "questionsPerBattle": 12,
+        "availableQuestions": 43,
+        "typeCounts": {
+          "choice": 32,
+          "fill": 9,
+          "translate": 2
+        },
+        "gradeCounts": {
+          "5": 43
+        }
+      },
+      {
+        "id": 12,
+        "name": "形状王国",
+        "topics": [
+          "shapes"
+        ],
+        "questionsPerBattle": 10,
+        "availableQuestions": 20,
+        "typeCounts": {
+          "fill": 5,
+          "choice": 11,
+          "spell": 4
+        },
+        "gradeCounts": {
+          "4": 20
+        }
+      },
+      {
+        "id": 13,
+        "name": "史前世界",
+        "topics": [
+          "dinosaurs",
+          "polaranimals"
+        ],
+        "questionsPerBattle": 12,
+        "availableQuestions": 24,
+        "typeCounts": {
+          "fill": 6,
+          "choice": 16,
+          "translate": 1,
+          "spell": 1
+        },
+        "gradeCounts": {
+          "5": 24
+        }
+      },
+      {
+        "id": 14,
+        "name": "海洋探险",
+        "topics": [
+          "undersea",
+          "pirates"
+        ],
+        "questionsPerBattle": 15,
+        "availableQuestions": 34,
+        "typeCounts": {
+          "choice": 26,
+          "fill": 5,
+          "translate": 3
+        },
+        "gradeCounts": {
+          "4": 22,
+          "5": 12
+        }
+      },
+      {
+        "id": 15,
+        "name": "日常生活",
+        "topics": [
+          "peelegg",
+          "snack",
+          "washhair",
+          "eatathome",
+          "washingdishes",
+          "housework",
+          "summersweat"
+        ],
+        "questionsPerBattle": 10,
+        "availableQuestions": 51,
+        "typeCounts": {
+          "choice": 28,
+          "fill": 15,
+          "translate": 8
+        },
+        "gradeCounts": {
+          "3": 30,
+          "4": 21
+        }
+      },
+      {
+        "id": 16,
+        "name": "太空之旅",
+        "topics": [
+          "space",
+          "forces"
+        ],
+        "questionsPerBattle": 15,
+        "availableQuestions": 40,
+        "typeCounts": {
+          "fill": 8,
+          "choice": 26,
+          "translate": 4,
+          "spell": 2
+        },
+        "gradeCounts": {
+          "6": 40
+        }
+      }
+    ],
+    "assessments": [
+      {
+        "id": 17,
+        "name": "知识评估1",
+        "questionsPerBattle": 12,
+        "availableQuestions": 111,
+        "typeCounts": {
+          "choice": 69,
+          "fill": 34,
+          "spell": 6,
+          "listen": 2
+        },
+        "gradeCounts": {
+          "3": 111
+        }
+      },
+      {
+        "id": 18,
+        "name": "知识评估2",
+        "questionsPerBattle": 15,
+        "availableQuestions": 107,
+        "typeCounts": {
+          "choice": 65,
+          "fill": 27,
+          "listen": 2,
+          "translate": 2,
+          "spell": 11
+        },
+        "gradeCounts": {
+          "4": 60,
+          "5": 47
+        }
+      },
+      {
+        "id": 19,
+        "name": "知识评估3",
+        "questionsPerBattle": 15,
+        "availableQuestions": 289,
+        "typeCounts": {
+          "fill": 78,
+          "choice": 170,
+          "translate": 28,
+          "reading": 4,
+          "listen": 1,
+          "spell": 8
+        },
+        "gradeCounts": {
+          "5": 197,
+          "6": 92
+        }
+      }
+    ]
+  },
+  "typeCoverage": [
+    {
+      "grade": 3,
+      "total": 307,
+      "typeCounts": {
+        "choice": 213,
+        "fill": 86,
+        "spell": 6,
+        "listen": 2
+      },
+      "missingCoreTypes": []
+    },
+    {
+      "grade": 4,
+      "total": 317,
+      "typeCounts": {
+        "grammar": 2,
+        "fill": 62,
+        "choice": 195,
+        "listen": 1,
+        "translate": 51,
+        "spell": 6
+      },
+      "missingCoreTypes": []
+    },
+    {
+      "grade": 5,
+      "total": 197,
+      "typeCounts": {
+        "choice": 121,
+        "fill": 46,
+        "translate": 21,
+        "reading": 2,
+        "listen": 1,
+        "spell": 6
+      },
+      "missingCoreTypes": []
+    },
+    {
+      "grade": 6,
+      "total": 92,
+      "typeCounts": {
+        "fill": 32,
+        "reading": 2,
+        "choice": 49,
+        "translate": 7,
+        "spell": 2
+      },
+      "missingCoreTypes": []
+    }
+  ],
+  "topicMetadata": {
+    "issues": [],
+    "usedTopics": [
+      "animals",
+      "bathroom",
+      "bearhunt",
+      "bedroom",
+      "billygoats",
+      "body",
+      "character",
+      "cinderella",
+      "clothes",
+      "colors",
+      "daily",
+      "desertanimals",
+      "diningroom",
+      "dinosaurs",
+      "earth",
+      "eatathome",
+      "emotion",
+      "family",
+      "farmanimals",
+      "firebrigade",
+      "food",
+      "forces",
+      "fruit",
+      "garden",
+      "goldilocks",
+      "grammar",
+      "housework",
+      "jackbeanstalk",
+      "jobs",
+      "jobs1",
+      "jobs2",
+      "jungle",
+      "kitchen",
+      "littlepigs",
+      "lostfound",
+      "lounge",
+      "nature",
+      "numbers",
+      "peelegg",
+      "pets",
+      "pirates",
+      "polaranimals",
+      "police",
+      "recycling",
+      "redridinghood",
+      "school",
+      "science",
+      "shapes",
+      "sleepingbeauty",
+      "snack",
+      "snowwhite",
+      "space",
+      "summersweat",
+      "superhero",
+      "teaparty",
+      "transport",
+      "undersea",
+      "vegetables",
+      "washhair",
+      "washingdishes",
+      "wastesorting",
+      "weather",
+      "winter"
+    ],
+    "duplicateDeclaredTopics": [],
+    "missingDeclaredTopics": [],
+    "unusedDeclaredTopics": [
+      "clothing",
+      "feelings",
+      "home",
+      "sports",
+      "time"
+    ],
+    "missingSkillDetails": []
+  }
+}

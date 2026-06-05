@@ -76,6 +76,13 @@ export function markAsMastered(questionId) {
   saveState(state);
 }
 
+// 手动从错题本移除
+export function removeWrong(questionId) {
+  const state = loadState();
+  state.wrongbook = state.wrongbook.filter(w => w.questionId !== questionId);
+  saveState(state);
+}
+
 // 计算间隔重复的下次复习日期
 export function calculateNextReview(entry) {
   const baseIntervals = [1, 3, 7, 14, 30, 60];

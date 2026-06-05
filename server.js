@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = 8080;
+const HOST = '127.0.0.1';
 const ROOT = __dirname;
 
 const MIME_TYPES = {
@@ -41,7 +42,7 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`学习大陆冒险 已启动: http://localhost:${PORT}`);
-  console.log(`按 Ctrl+C 停止服务器`);
+server.listen(PORT, HOST, () => {
+  process.stdout.write(`学习大陆冒险 已启动: http://${HOST}:${PORT}\n`);
+  process.stdout.write('按 Ctrl+C 停止服务器\n');
 });

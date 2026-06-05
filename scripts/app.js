@@ -14,14 +14,15 @@ import { isAssessmentUnlocked, startAssessment } from './features/assessment.js'
 
 // 初始化应用
 async function init() {
+  window.setLearningRpgBooted?.();
+
   // 尝试同步内存缓存
   syncMemoryCache();
 
-  // 注册 Service Worker
-  if ('serviceWorker' in navigator) {
+  // Service Worker 只能在本地服务或 HTTPS 下注册，直接打开文件时跳过。
+  if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
     try {
-      const reg = await navigator.serviceWorker.register('/sw.js');
-      console.log('[app] Service Worker 注册成功', reg.scope);
+      await navigator.serviceWorker.register('./sw.js');
     } catch (e) {
       console.warn('[app] Service Worker 注册失败', e);
     }
@@ -319,12 +320,8 @@ function initBattleHandlers() {
     // 听力播放按钮
     const listenPlayBtn = e.target.closest('#listen-play');
     if (listenPlayBtn) {
-      console.log('听力按钮被点击');
       const q = battleState.questions[battleState.currentIndex];
-      console.log('当前题目:', q.id, q.type);
       const wordToSpeak = q.audio || q.choices[q.answer];
-      console.log('播放:', wordToSpeak);
-      console.log('speechSynthesis可用:', 'speechSynthesis' in window);
       speakWord(wordToSpeak);
       return;
     }
@@ -333,7 +330,6 @@ function initBattleHandlers() {
     const audioHintBtn = e.target.closest('.audio-hint-btn');
     if (audioHintBtn) {
       const wordToSpeak = audioHintBtn.dataset.audio;
-      console.log('播放音频提示:', wordToSpeak);
       speakWord(wordToSpeak);
       return;
     }
@@ -433,6 +429,13 @@ async function handleAnswer(choiceIndex, textAnswer = null) {
     if (submitBtn) submitBtn.disabled = true;
   }
 
+  showLearningFeedback(question, {
+    correct,
+    isTimeout,
+    choiceIndex,
+    textAnswer
+  });
+
   battleState.questionResults.push(correct ? 'correct' : 'wrong');
   if (correct) {
     battleState.correctCount++;
@@ -458,7 +461,7 @@ async function handleAnswer(choiceIndex, textAnswer = null) {
     recordWrongQuestion(question);
   }
 
-  await sleep(800);
+  await sleep(correct ? 1000 : 2200);
 
   battleState.currentIndex++;
   if (battleState.currentIndex >= questions.length || battleState.petHp <= 0) {
@@ -517,6 +520,103 @@ function recordWrongQuestion(question) {
   }
 
   saveState(state);
+}
+
+function getCorrectAnswerText(question) {
+  if (typeof question.answer === 'number') {
+    return question.choices?.[question.answer] ?? '';
+  }
+  return String(question.answer ?? '');
+}
+
+function getUserAnswerText(question, choiceIndex, textAnswer, isTimeout) {
+  if (isTimeout) {
+    return '超时';
+  }
+  if (textAnswer !== null) {
+    return textAnswer.trim() || '未填写';
+  }
+  if (Number.isInteger(choiceIndex)) {
+    return question.choices?.[choiceIndex] ?? '未选择';
+  }
+  return '未选择';
+}
+
+function getLearningTip(question, correct) {
+  if (correct) {
+    return '这题已经掌握，继续保持这个节奏。';
+  }
+
+  const detail = `${question.skillDetail || ''} ${question.type || ''}`;
+
+  if (/第三人称单数/.test(detail)) {
+    return '看到 he、she、it 或单数名词做主语时，动词通常要加 s、es 或改 y 为 ies。';
+  }
+  if (/be动词/.test(detail)) {
+    return '先看主语：I 用 am，you/we/they 用 are，he/she/it 或单数名词用 is。';
+  }
+  if (/过去式|过去时态/.test(detail)) {
+    return '出现 yesterday、last week 这类过去时间时，动词要换成过去式，常见不规则变化要单独记。';
+  }
+  if (/现在完成时/.test(detail)) {
+    return '现在完成时常看 have 或 has，再接过去分词，表示已经完成或产生影响。';
+  }
+  if (/被动语态/.test(detail)) {
+    return '被动语态关注“被做了什么”，常见结构是 be 动词加过去分词。';
+  }
+  if (/可数\/不可数|there be/.test(detail)) {
+    return '先判断名词数量：单数常配 there is，复数常配 there are。';
+  }
+  if (question.type === 'spell') {
+    return '拼写题可以先按发音分块，再检查容易漏掉的双写字母和结尾字母。';
+  }
+  if (question.type === 'translate') {
+    return '翻译题先抓关键词，不必逐字硬翻；中文和英文意思完全对应最重要。';
+  }
+  if (question.type === 'listen') {
+    return '听力题可以先听首音和重读音节，再和选项逐个对照。';
+  }
+  if (question.type === 'reading') {
+    return '阅读题先找题干关键词，再回到短文里定位对应句子。';
+  }
+
+  return '先看题干关键词，再对照正确答案。错题已经记录，后面可以在错题本里复习。';
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function showLearningFeedback(question, result) {
+  const area = document.querySelector('.question-area');
+  if (!area) return;
+
+  const existing = area.querySelector('.learning-feedback');
+  if (existing) {
+    existing.remove();
+  }
+
+  const feedback = document.createElement('div');
+  feedback.className = `learning-feedback ${result.correct ? 'correct' : 'wrong'}`;
+
+  const correctAnswer = getCorrectAnswerText(question);
+  const userAnswer = getUserAnswerText(question, result.choiceIndex, result.textAnswer, result.isTimeout);
+  const title = result.correct ? '答对了' : '再看一眼';
+  const tip = getLearningTip(question, result.correct);
+
+  feedback.innerHTML = `
+    <div class="feedback-title">${escapeHtml(title)}</div>
+    ${result.correct ? '' : `<div class="feedback-answer">你的答案：${escapeHtml(userAnswer)}</div>`}
+    <div class="feedback-answer">正确答案：${escapeHtml(correctAnswer)}</div>
+    <div class="feedback-tip">${escapeHtml(tip)}</div>
+  `;
+
+  area.appendChild(feedback);
 }
 
 // 结束战斗

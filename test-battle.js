@@ -18,8 +18,12 @@ let battleState = {
 let isProcessingAnswer = false;
 let battleTimeLeft = 20;
 
+function logLine(...parts) {
+  process.stdout.write(`${parts.map(part => String(part)).join(' ')}\n`);
+}
+
 function stopQuestionTimer() {
-  console.log('[TIMER] 停止计时器');
+  logLine('[TIMER] 停止计时器');
 }
 
 async function sleep(ms) {
@@ -28,10 +32,10 @@ async function sleep(ms) {
 
 // 模拟点击处理
 async function handleAnswer(choiceIndex) {
-  console.log('[HANDLE] 开始处理答案:', choiceIndex);
+  logLine('[HANDLE] 开始处理答案:', choiceIndex);
 
   if (!battleState) {
-    console.log('[HANDLE] 无battleState，直接返回');
+    logLine('[HANDLE] 无battleState，直接返回');
     return;
   }
 
@@ -42,39 +46,39 @@ async function handleAnswer(choiceIndex) {
   const question = questions[currentIndex];
   const correct = choiceIndex === question.answer;
 
-  console.log('[HANDLE] 题目:', question.q, '选择:', choiceIndex, '正确答案:', question.answer, '是否正确:', correct);
+  logLine('[HANDLE] 题目:', question.q, '选择:', choiceIndex, '正确答案:', question.answer, '是否正确:', correct);
 
   if (correct) {
     battleState.correctCount++;
     battleState.monsterHp = Math.max(0, battleState.monsterHp - (level.monsterHp / questions.length));
   }
 
-  console.log('[HANDLE] 等待800ms...');
+  logLine('[HANDLE] 等待800ms...');
   await sleep(800);
 
   battleState.currentIndex++;
-  console.log('[HANDLE] currentIndex:', battleState.currentIndex, '总题数:', questions.length);
+  logLine('[HANDLE] currentIndex:', battleState.currentIndex, '总题数:', questions.length);
 
   if (battleState.currentIndex >= questions.length) {
-    console.log('[HANDLE] 答题结束');
+    logLine('[HANDLE] 答题结束');
   } else {
-    console.log('[HANDLE] 进入下一题:', questions[battleState.currentIndex].q);
+    logLine('[HANDLE] 进入下一题:', questions[battleState.currentIndex].q);
   }
 
   isProcessingAnswer = false;
-  console.log('[HANDLE] 处理完成');
+  logLine('[HANDLE] 处理完成');
 }
 
 // 测试流程
-console.log('=== 测试开始 ===');
-console.log('当前题目:', battleState.questions[battleState.currentIndex].q);
-console.log('');
+logLine('=== 测试开始 ===');
+logLine('当前题目:', battleState.questions[battleState.currentIndex].q);
+logLine('');
 
-console.log('--- 测试1: 选择正确答案(0) ---');
+logLine('--- 测试1: 选择正确答案(0) ---');
 handleAnswer(0);
 
 setTimeout(() => {
-  console.log('');
-  console.log('--- 测试2: 选择正确答案(1) ---');
+  logLine('');
+  logLine('--- 测试2: 选择正确答案(1) ---');
   handleAnswer(1);
 }, 1500);

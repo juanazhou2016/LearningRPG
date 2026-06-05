@@ -54,7 +54,6 @@ export function syncMemoryCache() {
     try {
       localStorage.setItem(key, JSON.stringify(data));
       delete memoryCache[key];
-      console.log(`[storage] 内存数据已同步到 localStorage: ${key}`);
     } catch (e) {
       // 仍然不可用，跳过
       break;

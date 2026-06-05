@@ -38,6 +38,7 @@ export function showPracticeSelect() {
         <div class="select-grid" id="practice-type-select">
           <div class="select-item selected" data-value="all"><div class="pet-icon">全部</div></div>
           <div class="select-item" data-value="choice"><div class="pet-icon">☑️</div><div class="pet-name">选择</div></div>
+          <div class="select-item" data-value="listen"><div class="pet-icon">🔊</div><div class="pet-name">听力</div></div>
           <div class="select-item" data-value="fill"><div class="pet-icon">✏️</div><div class="pet-name">填空</div></div>
           <div class="select-item" data-value="grammar"><div class="pet-icon">📖</div><div class="pet-name">语法</div></div>
         </div>
@@ -122,8 +123,19 @@ function renderPracticeQuestionUI(question, index, total) {
 
   let questionUI = '';
 
-  if (question.type === 'choice' || question.type === 'listen' || question.type === 'reading') {
+  if (question.type === 'choice' || question.type === 'reading') {
     questionUI = `
+      <div class="choices-grid" id="practice-choices">
+        ${question.choices.map((choice, i) => `
+          <button class="choice-btn" data-choice="${i}">${choice}</button>
+        `).join('')}
+      </div>
+    `;
+  } else if (question.type === 'listen') {
+    questionUI = `
+      <div class="listen-area">
+        <button class="btn listen-btn" id="practice-listen-play">🔊 播放听力</button>
+      </div>
       <div class="choices-grid" id="practice-choices">
         ${question.choices.map((choice, i) => `
           <button class="choice-btn" data-choice="${i}">${choice}</button>
@@ -178,6 +190,17 @@ function initPracticeHandlers() {
     }
 
     if (isProcessingPractice) return;
+
+    // 听力播放按钮
+    const listenPlayBtn = e.target.closest('#practice-listen-play');
+    if (listenPlayBtn) {
+      const q = practiceState.questions[practiceState.currentIndex];
+      const wordToSpeak = q.audio || q.choices?.[q.answer];
+      if (wordToSpeak) {
+        speakWord(wordToSpeak);
+      }
+      return;
+    }
 
     // 选择类题型
     const choiceBtn = e.target.closest('.choice-btn');

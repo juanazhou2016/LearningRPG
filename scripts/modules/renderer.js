@@ -4,7 +4,7 @@
  */
 
 import { getAllAchievements, getAchievementProgress } from './achievements.js';
-import { getWrongbook } from './wrongbook.js';
+import { getWrongbook, removeWrong } from './wrongbook.js';
 import { getQuestionById } from '../data/questions.js';
 import { loadState } from './state.js';
 import { renderParentReport as doRenderParentReport } from '../features/parentReport.js';
@@ -224,9 +224,10 @@ export function renderBattle(state, battleData) {
       </div>
     `;
   } else if (question.type === 'reading') {
+    const [passage, prompt = ''] = question.q.split('\n\n');
     questionUI = `
-      <div class="question-text" style="font-size:14px;color:#a0a0b0;margin-bottom:16px;white-space:pre-wrap;">${question.q.split('\n\n')[0]}</div>
-      <div class="question-text" style="font-size:18px;margin-bottom:16px;">${question.q.split('\n\n')[1] || ''}</div>
+      <div class="reading-passage">${passage}</div>
+      <div class="reading-prompt">${prompt}</div>
       <div class="choices-grid" id="choices-grid">
         ${question.choices.map((choice, i) => `
           <button class="choice-btn" data-choice="${i}">${choice}</button>
@@ -262,6 +263,9 @@ export function renderBattle(state, battleData) {
           </div>
         </div>
       </div>
+      <div class="timer-display ${timerClass}" id="timer-display">
+        ⏱️ ${timeLeft}s
+      </div>
     </div>
 
     <div class="progress-indicator">
@@ -272,12 +276,8 @@ export function renderBattle(state, battleData) {
       }).join('')}
     </div>
 
-    <div class="timer-display ${timerClass}" id="timer-display">
-      ⏱️ ${timeLeft}s
-    </div>
-
     <div class="question-area">
-      <div class="question-text">${questionText}</div>
+      ${question.type === 'reading' ? '' : `<div class="question-text">${questionText}</div>`}
       ${questionUI}
     </div>
 
@@ -460,11 +460,29 @@ export function initAchievementsHandlers() {
 }
 
 // 显示错题本
-export function renderWrongbook(state) {
+export function renderWrongbook(state, filters = {}) {
   const container = document.getElementById('wrongbook-content');
   if (!container) return;
 
   const wrongbook = getWrongbook();
+  const enriched = wrongbook
+    .map(entry => ({
+      entry,
+      question: getQuestionById(entry.questionId)
+    }))
+    .filter(item => item.question);
+  const filtered = enriched.filter(item => {
+    const { entry, question } = item;
+    const grade = Math.min(...question.grades);
+    return (!filters.grade || String(grade) === filters.grade)
+      && (!filters.type || question.type === filters.type)
+      && (!filters.topic || entry.topic === filters.topic);
+  });
+  const dueCount = enriched.filter(item => isDueReview(item.entry)).length;
+  const topicOptions = [...new Set(enriched.map(item => item.entry.topic))].sort();
+  const gradeOptions = [...new Set(enriched.flatMap(item => item.question.grades))].sort((a, b) => a - b);
+  const typeOptions = [...new Set(enriched.map(item => item.question.type))].sort();
+  const weakSkills = getWeakSkillSummary(enriched);
 
   container.innerHTML = `
     <div class="wrongbook-header">
@@ -472,16 +490,60 @@ export function renderWrongbook(state) {
       <div class="wrongbook-title">📋 错题本</div>
       <div class="wrongbook-count">${wrongbook.length} 道错题</div>
     </div>
+    <div class="wrongbook-dashboard">
+      <div class="wrongbook-stat">
+        <span class="stat-value">${wrongbook.length}</span>
+        <span class="stat-label">总错题</span>
+      </div>
+      <div class="wrongbook-stat">
+        <span class="stat-value">${dueCount}</span>
+        <span class="stat-label">今日复习</span>
+      </div>
+      <div class="wrongbook-stat">
+        <span class="stat-value">${weakSkills[0]?.count || 0}</span>
+        <span class="stat-label">${weakSkills[0]?.label || '薄弱点'}</span>
+      </div>
+    </div>
+    <div class="wrongbook-tools">
+      <select class="wrongbook-filter" data-filter="grade" aria-label="按年级筛选">
+        <option value="">全部年级</option>
+        ${gradeOptions.map(grade => `<option value="${grade}" ${filters.grade === String(grade) ? 'selected' : ''}>${grade} 年级</option>`).join('')}
+      </select>
+      <select class="wrongbook-filter" data-filter="type" aria-label="按题型筛选">
+        <option value="">全部题型</option>
+        ${typeOptions.map(type => `<option value="${type}" ${filters.type === type ? 'selected' : ''}>${getTypeLabel(type)}</option>`).join('')}
+      </select>
+      <select class="wrongbook-filter" data-filter="topic" aria-label="按主题筛选">
+        <option value="">全部主题</option>
+        ${topicOptions.map(topic => `<option value="${topic}" ${filters.topic === topic ? 'selected' : ''}>${topic}</option>`).join('')}
+      </select>
+      <button class="btn btn-secondary btn-sm" data-action="practice">去练习</button>
+    </div>
+    <div class="wrongbook-weakness">
+      ${weakSkills.length === 0 ? '<span>暂无薄弱知识点</span>' : weakSkills.map(item => `
+        <span class="weakness-chip">${item.label} · ${item.count}</span>
+      `).join('')}
+    </div>
     <div class="wrongbook-list">
       ${wrongbook.length === 0 ? '<div class="empty-state">太棒了！没有错题 🎉</div>' : ''}
-      ${wrongbook.map(w => {
-        const q = getQuestionById(w.questionId);
-        if (!q) return '';
+      ${wrongbook.length > 0 && filtered.length === 0 ? '<div class="empty-state">当前筛选下没有错题</div>' : ''}
+      ${filtered.map(({ entry: w, question: q }) => {
+        const grade = Math.min(...q.grades);
         return `
           <div class="wrongbook-item">
-            <div class="wrongbook-question">${q.q}</div>
-            <div class="wrongbook-answer">正确答案：${typeof q.answer === 'number' ? q.choices[q.answer] : q.answer}</div>
-            <div class="wrongbook-meta">错误 ${w.wrongCount} 次 · ${w.skillDetail}</div>
+            <div class="wrongbook-item-head">
+              <span class="wrongbook-tag">${grade} 年级</span>
+              <span class="wrongbook-tag">${getTypeLabel(q.type)}</span>
+              <span class="wrongbook-tag">${q.topic}</span>
+              ${isDueReview(w) ? '<span class="wrongbook-tag due">今日复习</span>' : ''}
+            </div>
+            <div class="wrongbook-question">${escapeHtml(q.q)}</div>
+            <div class="wrongbook-answer">正确答案：${escapeHtml(getAnswerText(q))}</div>
+            <div class="wrongbook-meta">错误 ${w.wrongCount} 次 · 连续答对 ${w.consecutiveCorrect} 次 · ${escapeHtml(w.skillDetail || '综合练习')}</div>
+            <div class="wrongbook-actions">
+              <button class="btn btn-secondary btn-sm" data-action="practice">去练习</button>
+              <button class="btn btn-sm" data-wrong-action="mastered" data-question-id="${q.id}">已掌握</button>
+            </div>
           </div>
         `;
       }).join('')}
@@ -499,8 +561,81 @@ export function initWrongbookHandlers() {
     if (btn) {
       showScreen('main-menu');
       renderMainMenu(loadState());
+      return;
+    }
+
+    const masteredBtn = e.target.closest('[data-wrong-action="mastered"]');
+    if (masteredBtn) {
+      removeWrong(masteredBtn.dataset.questionId);
+      renderWrongbook(loadState(), getWrongbookFilters(container));
+      initWrongbookHandlers();
     }
   };
+
+  container.onchange = function(e) {
+    const filter = e.target.closest('.wrongbook-filter');
+    if (!filter) return;
+    renderWrongbook(loadState(), getWrongbookFilters(container));
+    initWrongbookHandlers();
+  };
+}
+
+function getWrongbookFilters(container) {
+  const filters = {};
+  container.querySelectorAll('.wrongbook-filter').forEach(filter => {
+    if (filter.value) {
+      filters[filter.dataset.filter] = filter.value;
+    }
+  });
+  return filters;
+}
+
+function getAnswerText(question) {
+  if (typeof question.answer === 'number') {
+    return question.choices?.[question.answer] || '';
+  }
+  return question.answer || '';
+}
+
+function getTypeLabel(type) {
+  const labels = {
+    choice: '选择',
+    fill: '填空',
+    spell: '拼写',
+    grammar: '语法',
+    translate: '翻译',
+    reading: '阅读',
+    listen: '听力',
+    oral: '口语'
+  };
+  return labels[type] || type;
+}
+
+function isDueReview(entry) {
+  if (!entry.nextReviewDate) return true;
+  const today = new Date().toISOString().split('T')[0];
+  return entry.nextReviewDate <= today;
+}
+
+function getWeakSkillSummary(items) {
+  const counts = {};
+  for (const { entry } of items) {
+    const label = entry.skillDetail || entry.topic || '综合练习';
+    counts[label] = (counts[label] || 0) + entry.wrongCount;
+  }
+  return Object.entries(counts)
+    .map(([label, count]) => ({ label, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 // 显示家长报告

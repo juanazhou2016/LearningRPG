@@ -8,10 +8,10 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="学习大陆">
-  <link rel="manifest" href="/manifest.json">
-  <link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
   <title>学习大陆冒险 · 英语篇</title>
-  <link rel="stylesheet" href="/styles/app.css">
+  <link rel="stylesheet" href="styles/app.css">
 </head>
 <body>
   <div id="app">
@@ -89,6 +89,30 @@
 
   </div>
 
-  <script src="/scripts/app.js" type="module"></script>
+  <script>
+    window.__learningRpgBooted = false;
+
+    window.setLearningRpgBooted = function() {
+      window.__learningRpgBooted = true;
+    };
+
+    window.addEventListener('DOMContentLoaded', function() {
+      window.setTimeout(function() {
+        const loadingScreen = document.getElementById('loading-screen');
+        const loadingTip = document.getElementById('loading-tip');
+        const isStillLoading = loadingScreen && loadingScreen.classList.contains('active');
+
+        if (!window.__learningRpgBooted && isStillLoading && loadingTip) {
+          if (window.location.protocol === 'file:') {
+            loadingTip.innerHTML = '浏览器限制直接双击运行模块文件。请双击 <code>START_GAME.command</code> 启动，或在项目目录运行 <code>node server.js</code> 后打开 <code>http://127.0.0.1:8080</code>。';
+            return;
+          }
+
+          loadingTip.textContent = '启动没有完成，请刷新页面或检查本地服务是否已启动。';
+        }
+      }, 2200);
+    });
+  </script>
+  <script src="scripts/app.js" type="module"></script>
 </body>
 </html>
